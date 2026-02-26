@@ -1,0 +1,58 @@
+
+7:16 AM
+You sent
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Digitální Pravdy</title>
+    <style>
+        body { font-family: sans-serif; background: #000; color: #0f0; padding: 20px; line-height: 1.6; }
+        .box { border: 1px solid #0f0; padding: 15px; margin-bottom: 20px; background: #050505; }
+        h1 { color: #fff; text-transform: uppercase; letter-spacing: 2px; }
+        .warning { color: #ff0000; font-weight: bold; border: 2px solid #ff0000; padding: 10px; margin-top: 20px; }
+        .btn { background: #0f0; color: #000; padding: 10px 20px; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <h1>Projekt: Digital Azyl</h1>
+    <p>Myslíš si, že tě VPN chrání? Google tě vidí skrze tyto údaje:</p>
+
+    <div class="box" id="data-box">
+        <p><strong>Načítám tvůj digitální stín...</strong></p>
+    </div>
+
+    <div class="warning">
+        Tohle všechno (a mnohem víc) o tobě ví každá reklama na webu bez tvého svolení.
+    </div>
+
+    <p>Chceš tyto údaje začít maskovat "digitálním šumem"?</p>
+    <button class="btn" onclick="alert('Brzy spustíme protokol Ghost. Zůstaň v anonymitě.')">Aktivovat ochranu</button>
+
+    <script>
+        function getBattery() {
+            if (navigator.getBattery) {
+                navigator.getBattery().then(function(battery) {
+                    document.getElementById('battery').innerText = (battery.level * 100) + "%";
+                });
+            } else {
+                return "Není přístupné";
+            }
+        }
+
+        const dataBox = document.getElementById('data-box');
+        dataBox.innerHTML = `
+            <p>📱 <strong>Rozlišení tvého displeje:</strong> ${window.screen.width}x${window.screen.height} px</p>
+            <p>🔋 <strong>Stav tvé baterie:</strong> <span id="battery">Zjišťuji...</span></p>
+            <p>💻 <strong>Počet jader tvého procesoru:</strong> ${navigator.hardwareConcurrency || 'Neznámé'}</p>
+            <p>🌐 <strong>Tvůj jazyk:</strong> ${navigator.language}</p>
+            <p>🕒 <strong>Tvůj časové pásmo:</strong> ${Intl.DateTimeFormat().resolvedOptions().timeZone}</p>
+            <p>🖥️ <strong>Operační systém:</strong> ${navigator.platform}</p>
+            <p>📍 <strong>Paměť RAM (přibližně):</strong> ${navigator.deviceMemory || 'Neznámé'} GB</p>
+        `;
+        getBattery();
+    </script>
+</body>
+</html>
