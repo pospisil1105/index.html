@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST PROTOCOL | Professional</title>
+    <title>GHOST PROTOCOL | Ultimate Professional</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GHOST">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/543/543209.png">
+    <link rel="manifest" href="data:application/json;base64,ewogICJkZWZhdWx0X2xvY2FsZSI6ICJlbiIsCiAgIm5hbWUiOiAiR2hvc3QgUHJvdG9jb2wiLAogICJzaG9ydF9uYW1lIjogIkdIT1NUIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwNTA1MDUiLAogICJ0aGVtZV9jb2xvciI6ICIjMDBmZjQxIgp9">
+
     <style>
         :root { --neon: #00ff41; --danger: #ff0000; --bg: #050505; }
         body { font-family: 'Courier New', monospace; background: var(--bg); color: var(--neon); padding: 15px; text-align: center; margin: 0; }
         .container { max-width: 500px; margin: 0 auto; }
         h1 { font-size: 1.4em; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; }
         
-        /* Dynamický stavový řádek */
         .status-header { font-size: 0.9em; font-weight: bold; margin-bottom: 20px; padding: 10px; border: 1px solid var(--danger); color: var(--danger); text-transform: uppercase; }
         .status-protected { border-color: var(--neon) !important; color: var(--neon) !important; box-shadow: 0 0 10px rgba(0,255,65,0.2); }
 
@@ -23,6 +29,9 @@
         #log { font-size: 0.65em; color: #008f11; height: 140px; overflow-y: hidden; border: 1px solid #222; padding: 10px; background: #000; margin-top: 15px; text-align: left; }
         .stat-line { display: flex; justify-content: space-between; font-size: 0.75em; margin-top: 10px; color: #888; border-top: 1px solid #222; padding-top: 10px; }
         .val { color: #fff; }
+
+        /* Návod k instalaci */
+        .install-guide { font-size: 0.7em; color: #555; margin-top: 20px; text-align: left; border: 1px dashed #333; padding: 10px; }
     </style>
 </head>
 <body>
@@ -61,54 +70,77 @@
         <div>G-CLICKS: <span class="val" id="c-count">0</span></div>
         <div>POISON: <span class="val" id="poison">0%</span></div>
     </div>
+
+    <div class="install-guide" id="t-guide">
+        💡 To install as App: Tap Share -> Add to Home Screen
+    </div>
 </div>
 
 <script>
+    // 1. OCHRANA PROTI REFERERŮM
+    const meta = document.createElement('meta');
+    meta.name = "referrer"; meta.content = "no-referrer";
+    document.getElementsByTagName('head')[0].appendChild(meta);
+
+    // 2. CANVAS POISONING
+    const originalGetImageData = CanvasRenderingContext2D.prototype.getImageData;
+    CanvasRenderingContext2D.prototype.getImageData = function(x, y, w, h) {
+        const data = originalGetImageData.apply(this, arguments);
+        if (shieldActive) {
+            data.data[Math.floor(Math.random() * data.data.length)] += 1;
+        }
+        return data;
+    };
+
+    // JAZYKY
     const langSet = {
         cs: {
             status_exposed: "STAV: KRITICKY ODHALEN",
             status_protected: "STAV: ZAHALENO / CHRÁNĚNO",
-            hw: "OTISK HARDWARU",
-            batt: "BATERIE",
-            res: "DISPLEJ",
-            id: "DIGITÁLNÍ IDENTITA",
-            sensor: "SENZORY",
-            motion: "KLID",
-            btn_stop: "ZASTAVIT CLONU",
-            panic: "!!! PANIC MODE !!!",
+            hw: "OTISK HARDWARU", batt: "BATERIE", res: "DISPLEJ",
+            id: "DIGITÁLNÍ IDENTITA", sensor: "SENZORY", motion: "KLID",
+            btn_stop: "ZASTAVIT CLONU", panic: "!!! PANIC MODE !!!",
             shield_start: ">>> SPUŠTĚNO CLONĚNÍ. GENERUJI ŠUM...",
-            noise_msg: "ŠUM: Odeslán paket",
-            ghost_msg: "[GHOST] Falešný dotek"
+            noise_msg: "ŠUM: Odeslán paket", ghost_msg: "[GHOST] Falešný dotek",
+            guide: "💡 Instalace: Klepněte na Sdílet -> Přidat na plochu"
         },
         en: {
             status_exposed: "STATUS: CRITICALLY EXPOSED",
             status_protected: "STATUS: PROTECTED / MASKED",
-            hw: "HARDWARE FINGERPRINT",
-            batt: "BATTERY",
-            res: "DISPLAY",
-            id: "DIGITAL IDENTITY",
-            sensor: "SENSORS",
-            motion: "STATIONARY",
-            btn_stop: "STOP SHIELD",
-            panic: "!!! PANIC MODE !!!",
+            hw: "HARDWARE FINGERPRINT", batt: "BATTERY", res: "DISPLAY",
+            id: "DIGITAL IDENTITY", sensor: "SENSORS", motion: "STATIONARY",
+            btn_stop: "STOP SHIELD", panic: "!!! PANIC MODE !!!",
             shield_start: ">>> SHIELD ACTIVE. GENERATING NOISE...",
-            noise_msg: "NOISE: Packet sent",
-            ghost_msg: "[GHOST] Fake interaction"
+            noise_msg: "NOISE: Packet sent", ghost_msg: "[GHOST] Fake interaction",
+            guide: "💡 To install as App: Tap Share -> Add to Home Screen"
         }
     };
 
     const userLang = navigator.language.startsWith('cs') ? 'cs' : 'en';
     const t = langSet[userLang];
-
-    // Základní nastavení textů
     document.getElementById('t-status').innerText = t.status_exposed;
     document.getElementById('t-hw').innerText = t.hw;
     document.getElementById('t-batt-label').innerText = t.batt;
     document.getElementById('t-res-label').innerText = t.res;
     document.getElementById('t-id').innerText = t.id;
     document.getElementById('t-sensor').innerText = t.sensor;
+    document.getElementById('t-guide').innerText = t.guide;
 
     let packets = 0, clicks = 0, shieldActive = false;
+
+    // AUDIO OCHRANA
+    function poisonAudio() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+                const context = new AudioContext();
+                const oscillator = context.createOscillator();
+                const gain = context.createGain();
+                gain.gain.value = 0; oscillator.connect(gain); gain.connect(context.destination);
+                oscillator.start(0);
+            }
+        } catch(e) {}
+    }
 
     async function runDeepScan() {
         document.getElementById('cpu').innerText = navigator.hardwareConcurrency + " Cores";
@@ -135,15 +167,13 @@
     function activateShield() {
         if (!shieldActive) {
             shieldActive = true;
-            // Změna stavu na zelený
+            poisonAudio();
             const statusHeader = document.getElementById('t-status');
             statusHeader.innerText = t.status_protected;
             statusHeader.classList.add('status-protected');
-            
             document.getElementById('shield-btn').innerText = t.btn_stop;
             document.getElementById('panic-btn').style.display = "block";
-            document.getElementById('log').innerHTML = t.shield_start + "<br>" + document.getElementById('log').innerHTML;
-            
+            document.getElementById('log').innerHTML = ">>> CANVAS & AUDIO MASKING ENABLED.<br>" + t.shield_start + "<br>" + document.getElementById('log').innerHTML;
             setInterval(() => { if(shieldActive) injectNoise("SHIELD"); }, 900);
         } else {
             location.reload();
@@ -154,8 +184,7 @@
         const log = document.getElementById('log');
         const loop = setInterval(() => {
             injectNoise("PANIC");
-            clicks++;
-            document.getElementById('c-count').innerText = clicks;
+            clicks++; document.getElementById('c-count').innerText = clicks;
             const x = Math.floor(Math.random() * window.innerWidth);
             const y = Math.floor(Math.random() * window.innerHeight);
             document.dispatchEvent(new MouseEvent('click', {clientX: x, clientY: y}));
@@ -168,8 +197,7 @@
         const topics = ["crypto", "travel", "politics", "health", "luxury"];
         const topic = topics[Math.floor(Math.random()*topics.length)];
         fetch(`https://source.unsplash.com/10x10/?${topic}&sig=${Math.random()}`, {mode:'no-cors'});
-        packets++;
-        document.getElementById('p-count').innerText = packets;
+        packets++; document.getElementById('p-count').innerText = packets;
         document.getElementById('poison').innerText = Math.min(100, Math.floor(packets / 1.5)) + "%";
         if(type === "SHIELD") {
             document.getElementById('log').innerHTML = `[${new Date().toLocaleTimeString()}] ${t.noise_msg} (${topic})<br>` + document.getElementById('log').innerHTML;
