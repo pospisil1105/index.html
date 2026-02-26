@@ -1,58 +1,156 @@
-
-7:16 AM
-You sent
 <!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Digitální Pravdy</title>
+    <title>Ghost Protocol - Digital Azyl</title>
     <style>
-        body { font-family: sans-serif; background: #000; color: #0f0; padding: 20px; line-height: 1.6; }
-        .box { border: 1px solid #0f0; padding: 15px; margin-bottom: 20px; background: #050505; }
-        h1 { color: #fff; text-transform: uppercase; letter-spacing: 2px; }
-        .warning { color: #ff0000; font-weight: bold; border: 2px solid #ff0000; padding: 10px; margin-top: 20px; }
-        .btn { background: #0f0; color: #000; padding: 10px 20px; border: none; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+        body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff41; padding: 20px; line-height: 1.4; }
+        .box { border: 1px dashed #00ff41; padding: 15px; background: #000; margin-top: 20px; font-size: 0.9em; }
+        .btn { background: #00ff41; color: #000; padding: 18px; border: none; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; text-transform: uppercase; font-size: 1em; }
+        #log { font-size: 0.7em; color: #888; margin-top: 20px; height: 120px; overflow: hidden; border-top: 1px solid #222; padding-top: 10px; }
+        h1 { font-size: 1.5em; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
-    <h1>Projekt: Digital Azyl</h1>
-    <p>Myslíš si, že tě VPN chrání? Google tě vidí skrze tyto údaje:</p>
+    <h1 id="title">GHOST PROTOCOL v1.0</h1>
+    <p id="subtitle">Identifikovaný digitální stín:</p>
+    
+    <div class="box" id="data">Načítám parametry...</div>
 
-    <div class="box" id="data-box">
-        <p><strong>Načítám tvůj digitální stín...</strong></p>
-    </div>
+    <button class="btn" id="main-btn" onclick="startGhost()">AKTIVOVAT DIGITÁLNÍ ŠUM</button>
 
-    <div class="warning">
-        Tohle všechno (a mnohem víc) o tobě ví každá reklama na webu bez tvého svolení.
-    </div>
-
-    <p>Chceš tyto údaje začít maskovat "digitálním šumem"?</p>
-    <button class="btn" onclick="alert('Brzy spustíme protokol Ghost. Zůstaň v anonymitě.')">Aktivovat ochranu</button>
+    <div id="log"></div>
 
     <script>
-        function getBattery() {
+        // JAZYKOVÉ MUTACE
+        const translations = {
+            cs: { title: "GHOST PROTOCOL v1.0", subtitle: "Identifikovaný digitální stín:", btn: "AKTIVOVAT DIGITÁLNÍ ŠUM", alert: "Protokol aktivován. Tvůj prohlížeč nyní generuje digitální mlhu.", battery: "Baterie", cores: "Jádra procesoru", res: "Rozlišení", loc: "Lokalita", noise: "SPOUŠTÍM DIGITÁLNÍ ZÁSTĚNU..." },
+            de: { title: "GHOST PROTOKOLL v1.0", subtitle: "Identifizierter digitaler Schatten:", btn: "DIGITALES RAUSCHEN AKTIVIEREN", alert: "Protokoll aktiviert. Ihr Browser erzeugt nun digitalen Nebel.", battery: "Batterie", cores: "Prozessorkerne", res: "Auflösung", loc: "Standort", noise: "DIGITALE BARRIERE WIRD GESTARTET..." },
+            en: { title: "GHOST PROTOCOL v1.0", subtitle: "Identified Digital Shadow:", btn: "ACTIVATE DIGITAL NOISE", alert: "Protocol activated. Your browser is now generating digital fog.", battery: "Battery", cores: "CPU Cores", res: "Resolution", loc: "Location", noise: "STARTING DIGITAL SHIELD..." }
+        };
+
+        // Detekce jazyka
+        let lang = navigator.language.split('-')[0]; 
+        if (!translations[lang]) lang = 'en'; // Pokud jazyk neznáme, dáme angličtinu
+
+        const t = translations[lang];
+
+        // Aplikace překladu
+        document.getElementById('title').innerText = t.title;
+        document.getElementById('subtitle').innerText = t.subtitle;
+        document.getElementById('main-btn').innerText = t.btn;
+
+        function showData() {
+            const batteryLevel = "Zjišťuji...";
+            const info = `
+                🔋 ${t.battery}: <span id="batt">...</span><br>
+                🖥️ ${t.res}: ${window.screen.width}x${window.screen.height}<br>
+                🧠 ${t.cores}: ${navigator.hardwareConcurrency || '?'}<br>
+                🌍 ${t.loc}: Sagard / Rujána (IP)
+            `;
+            document.getElementById('data').innerHTML = info;
+
             if (navigator.getBattery) {
-                navigator.getBattery().then(function(battery) {
-                    document.getElementById('battery').innerText = (battery.level * 100) + "%";
+                navigator.getBattery().then(b => {
+                    document.getElementById('batt').innerText = Math.round(b.level * 100) + "%";
                 });
-            } else {
-                return "Není přístupné";
             }
         }
 
-        const dataBox = document.getElementById('data-box');
-        dataBox.innerHTML = `
-            <p>📱 <strong>Rozlišení tvého displeje:</strong> ${window.screen.width}x${window.screen.height} px</p>
-            <p>🔋 <strong>Stav tvé baterie:</strong> <span id="battery">Zjišťuji...</span></p>
-            <p>💻 <strong>Počet jader tvého procesoru:</strong> ${navigator.hardwareConcurrency || 'Neznámé'}</p>
-            <p>🌐 <strong>Tvůj jazyk:</strong> ${navigator.language}</p>
-            <p>🕒 <strong>Tvůj časové pásmo:</strong> ${Intl.DateTimeFormat().resolvedOptions().timeZone}</p>
-            <p>🖥️ <strong>Operační systém:</strong> ${navigator.platform}</p>
-            <p>📍 <strong>Paměť RAM (přibližně):</strong> ${navigator.deviceMemory || 'Neznámé'} GB</p>
-        `;
-        getBattery();
+        function startGhost() {
+            const log = document.getElementById('log');
+            log.innerHTML = >>> ${t.noise}<br> + log.innerHTML;
+            
+            setInterval(() => {
+                const targets = ['google-analytics.com', 'facebook.com/tr', 'doubleclick.net', 'adservice.google.com'];
+                const randomTarget = targets[Math.floor(Math.random() * targets.length)];
+                log.innerHTML = [${new Date().toLocaleTimeString()}] Fake packet -> ${randomTarget}<br> + log.innerHTML;
+            }, 1500);
+
+            alert(t.alert);
+        }
+
+        showData();
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Protocol - Digital Azyl</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff41; padding: 20px; line-height: 1.4; }
+        .box { border: 1px dashed #00ff41; padding: 15px; background: #000; margin-top: 20px; font-size: 0.9em; }
+        .btn { background: #00ff41; color: #000; padding: 18px; border: none; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; text-transform: uppercase; font-size: 1em; }
+        #log { font-size: 0.7em; color: #888; margin-top: 20px; height: 120px; overflow: hidden; border-top: 1px solid #222; padding-top: 10px; }
+        h1 { font-size: 1.5em; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <h1 id="title">GHOST PROTOCOL v1.0</h1>
+    <p id="subtitle">Identifikovaný digitální stín:</p>
+    
+    <div class="box" id="data">Načítám parametry...</div>
+
+    <button class="btn" id="main-btn" onclick="startGhost()">AKTIVOVAT DIGITÁLNÍ ŠUM</button>
+
+    <div id="log"></div>
+
+    <script>
+        // JAZYKOVÉ MUTACE
+        const translations = {
+            cs: { title: "GHOST PROTOCOL v1.0", subtitle: "Identifikovaný digitální stín:", btn: "AKTIVOVAT DIGITÁLNÍ ŠUM", alert: "Protokol aktivován. Tvůj prohlížeč nyní generuje digitální mlhu.", battery: "Baterie", cores: "Jádra procesoru", res: "Rozlišení", loc: "Lokalita", noise: "SPOUŠTÍM DIGITÁLNÍ ZÁSTĚNU..." },
+            de: { title: "GHOST PROTOKOLL v1.0", subtitle: "Identifizierter digitaler Schatten:", btn: "DIGITALES RAUSCHEN AKTIVIEREN", alert: "Protokoll aktiviert. Ihr Browser erzeugt nun digitalen Nebel.", battery: "Batterie", cores: "Prozessorkerne", res: "Auflösung", loc: "Standort", noise: "DIGITALE BARRIERE WIRD GESTARTET..." },
+            en: { title: "GHOST PROTOCOL v1.0", subtitle: "Identified Digital Shadow:", btn: "ACTIVATE DIGITAL NOISE", alert: "Protocol activated. Your browser is now generating digital fog.", battery: "Battery", cores: "CPU Cores", res: "Resolution", loc: "Location", noise: "STARTING DIGITAL SHIELD..." }
+        };
+
+        // Detekce jazyka
+        let lang = navigator.language.split('-')[0]; 
+        if (!translations[lang]) lang = 'en'; // Pokud jazyk neznáme, dáme angličtinu
+
+        const t = translations[lang];
+
+        // Aplikace překladu
+        document.getElementById('title').innerText = t.title;
+        document.getElementById('subtitle').innerText = t.subtitle;
+        document.getElementById('main-btn').innerText = t.btn;
+
+        function showData() {
+            const batteryLevel = "Zjišťuji...";
+            const info = `
+                🔋 ${t.battery}: <span id="batt">...</span><br>
+                🖥️ ${t.res}: ${window.screen.width}x${window.screen.height}<br>
+                🧠 ${t.cores}: ${navigator.hardwareConcurrency || '?'}<br>
+                🌍 ${t.loc}: Sagard / Rujána (IP)
+            `;
+            document.getElementById('data').innerHTML = info;
+
+            if (navigator.getBattery) {
+                navigator.getBattery().then(b => {
+                    document.getElementById('batt').innerText = Math.round(b.level * 100) + "%";
+                });
+            }
+        }
+
+        function startGhost() {
+            const log = document.getElementById('log');
+            log.innerHTML = >>> ${t.noise}<br> + log.innerHTML;
+            
+            setInterval(() => {
+                const targets = ['google-analytics.com', 'facebook.com/tr', 'doubleclick.net', 'adservice.google.com'];
+                const randomTarget = targets[Math.floor(Math.random() * targets.length)];
+                log.innerHTML = [${new Date().toLocaleTimeString()}] Fake packet -> ${randomTarget}<br> + log.innerHTML;
+            }, 1500);
+
+            alert(t.alert);
+        }
+
+        showData();
     </script>
 </body>
 </html>
