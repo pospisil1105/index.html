@@ -3,112 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST PROTOCOL | Active Shield</title>
+    <title>GHOST PROTOCOL | Absolute Decoy</title>
     <style>
-        body { font-family: 'Courier New', monospace; background: #050505; color: #00ff41; padding: 20px; text-align: center; }
-        .box { border: 1px solid #00ff41; padding: 15px; background: #000; margin: 20px auto; max-width: 450px; text-align: left; box-shadow: 0 0 10px #003300; }
-        .btn { background: #00ff41; color: #000; padding: 20px; border: none; width: 100%; max-width: 450px; font-weight: bold; cursor: pointer; font-size: 1.1em; transition: 0.3s; }
-        .btn:active { transform: scale(0.98); }
-        .active { background: #ff3e3e !important; color: #fff; box-shadow: 0 0 20px #ff3e3e; }
-        #network-monitor { font-size: 0.7em; color: #008f11; margin-top: 20px; text-align: left; max-width: 450px; margin: 20px auto; height: 180px; overflow-y: hidden; border: 1px solid #222; padding: 10px; background: #000; }
-        .stat { color: #fff; font-weight: bold; }
-        .ip-box { color: #00d9ff; font-weight: bold; }
+        body { font-family: 'Courier New', monospace; background: #050505; color: #00ff41; padding: 20px; text-align: center; overflow-x: hidden; }
+        .box { border: 1px solid #00ff41; padding: 15px; background: #000; margin: 10px auto; max-width: 450px; text-align: left; }
+        .btn { background: #00ff41; color: #000; padding: 15px; border: none; width: 100%; max-width: 450px; font-weight: bold; cursor: pointer; margin-bottom: 10px; text-transform: uppercase; transition: 0.2s; }
+        .panic-btn { background: #ff0000; color: #fff; font-size: 1.2em; box-shadow: 0 0 25px #ff0000; display: none; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
+        #network-monitor { font-size: 0.65em; color: #ff3e3e; margin: 15px auto; max-width: 450px; height: 150px; overflow: hidden; border: 1px solid #330000; background: #0a0000; padding: 8px; line-height: 1.2; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; max-width: 450px; margin: 0 auto; font-size: 0.8em; color: #888; }
+        .warning { color: #ff3e3e; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <h1>GHOST PROTOCOL</h1>
-    <p>Ochrana identity: <span id="shield-status" style="color:#ff3e3e">ODKRYTA</span></p>
+    <h1 style="letter-spacing: 2px;">GHOST PROTOCOL v4.5</h1>
     
-    <div class="box" id="fingerprint">
-        [ Provádím hloubkovou analýzu... ]
+    <div class="box" id="device-info">
+        [ SYSTÉMOVÁ ANALÝZA ]<br>
+        IP: <span id="ip-display" style="color:#00d9ff">Scanning...</span><br>
+        Fingerprint: <span id="fp-status" style="color:#ff3e3e">ČITELNÝ</span>
     </div>
 
-    <button class="btn" id="action-btn" onclick="toggleShield()">SPUSTIT AKTIVNÍ CLONĚNÍ</button>
+    <button class="btn" id="start-btn" onclick="startShield()">AKTIVOVAT CLONU</button>
+    <button class="btn panic-btn" id="panic-btn" onclick="triggerPanic()">!!! PANIC MODE !!!</button>
     
-    <div id="network-monitor">
-        [ Čekám na inicializaci protokolu ]
-    </div>
+    <div id="network-monitor">>>> ČEKÁM NA PŘÍKAZ...</div>
 
-    <div style="font-size: 0.8em; margin-top: 20px; color: #888;">
-        Klamné požadavky: <span id="packet-count" class="stat">0</span><br>
-        Znehodnocení dat Googlu: <span id="noise-level" class="stat">0%</span>
+    <div class="stat-grid">
+        <div>ZÁSAHY: <span id="hits" style="color:#fff">0</span></div>
+        <div>FALEŠNÉ KLIKY: <span id="clicks" style="color:#fff">0</span></div>
     </div>
 
     <script>
-        let isShieldActive = false;
-        let packetCounter = 0;
-        let shieldInterval;
+        let isPanic = false;
+        let hits = 0;
+        let clicks = 0;
+        const keywords = ["investing", "bioweapon-defense", "offshore-banking", "encryption-keys", "anonymous-browsing", "surveillance-bypass"];
 
-        const keywords = ["crypto", "travel", "cooking", "investing", "luxury", "fitness", "gaming", "politics", "science", "meditation"];
-
-        async function updateFingerprint() {
-            const dataDiv = document.getElementById('fingerprint');
-            const cores = navigator.hardwareConcurrency || "🔒";
-            
-            // Základní HW data
-            let info = `
-                🔋 Baterie: <span id="batt">...</span><br>
-                🖥️ Rozlišení: ${window.screen.width}x${window.screen.height}<br>
-                🧠 Jádra CPU: ${cores}<br>
-                🌍 IP adresa: <span id="ip-val" class="ip-box">Zjišťuji...</span>
-            `;
-            dataDiv.innerHTML = info;
-
-            // Zjištění baterie
-            if (navigator.getBattery) {
-                navigator.getBattery().then(b => document.getElementById('batt').innerText = Math.round(b.level * 100) + "%");
-            }
-
-            // Zjištění SKUTEČNÉ IP adresy (veřejné)
+        async function fetchIP() {
             try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                document.getElementById('ip-val').innerText = data.ip;
-            } catch (e) {
-                document.getElementById('ip-val').innerText = "Blokováno (Firewall)";
-            }
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                document.getElementById('ip-display').innerText = data.ip;
+            } catch(e) { document.getElementById('ip-display').innerText = "VPN ACTIVE / HIDDEN"; }
         }
 
-        function toggleShield() {
-            const btn = document.getElementById('action-btn');
-            const status = document.getElementById('shield-status');
+        function startShield() {
+            document.getElementById('start-btn').style.display = "none";
+            document.getElementById('panic-btn').style.display = "block";
+            document.getElementById('fp-status').innerText = "ZAHALEN (ŠUM)";
+            document.getElementById('fp-status').style.color = "#00ff41";
+            
+            setInterval(() => injectNoise("DECOY"), 1200);
+        }
+
+        function triggerPanic() {
+            isPanic = true;
+            const monitor = document.getElementById('network-monitor');
+            monitor.innerHTML = "<span class='warning'>!!! EXTRÉMNÍ SEKVENCE SPUŠTĚNA !!!</span><br>" + monitor.innerHTML;
+            
+            // Masivní smršť dat i falešných kliknutí
+            const panicLoop = setInterval(() => {
+                injectNoise("PANIC");
+                generateGhostClick();
+                if(!isPanic) clearInterval(panicLoop);
+            }, 60);
+
+            setTimeout(() => {
+                isPanic = false;
+                monitor.innerHTML = "<span style='color:#00ff41'>--- SEKVENCE DOKONČENA: DATA OTRÁVENA ---</span><br>" + monitor.innerHTML;
+            }, 6000); 
+        }
+
+        function injectNoise(type) {
+            const kw = keywords[Math.floor(Math.random() * keywords.length)];
             const monitor = document.getElementById('network-monitor');
             
-            isShieldActive = !isShieldActive;
-
-            if (isShieldActive) {
-                btn.innerText = "ZASTAVIT CLONĚNÍ";
-                btn.classList.add('active');
-                status.innerText = "MAXIMÁLNÍ (AKTIVNÍ ŠUM)";
-                status.style.color = "#00ff41";
-                
-                shieldInterval = setInterval(() => {
-                    const kw = keywords[Math.floor(Math.random() * keywords.length)];
-                    // Generování reálného síťového požadavku pro zmatení trackerů
-                    const fakeUrl = `https://source.unsplash.com/100x100/?${kw}&seed=${Math.random()}`;
-                    
-                    fetch(fakeUrl, { mode: 'no-cors' }).then(() => {
-                        packetCounter++;
-                        document.getElementById('packet-count').innerText = packetCounter;
-                        document.getElementById('noise-level').innerText = Math.min(100, Math.floor(packetCounter / 1.2)) + "%";
-                        
-                        const time = new Date().toLocaleTimeString();
-                        monitor.innerHTML = `[${time}] SÍŤOVÝ ŠUM: odeslán dotaz na téma "${kw}"<br>` + monitor.innerHTML;
-                    });
-                }, 700);
-            } else {
-                btn.innerText = "SPUSTIT AKTIVNÍ CLONĚNÍ";
-                btn.classList.remove('active');
-                status.innerText = "ODKRYTA";
-                status.style.color = "#ff3e3e";
-                clearInterval(shieldInterval);
-                monitor.innerHTML = `>>> PROTOKOL ZASTAVEN...<br>` + monitor.innerHTML;
-            }
+            fetch(`https://source.unsplash.com/20x20/?${kw}&${Math.random()}`, { mode: 'no-cors' });
+            
+            hits++;
+            document.getElementById('hits').innerText = hits;
+            const time = new Date().toLocaleTimeString();
+            monitor.innerHTML = `[${time}] ${type}: Requesting metadata [${kw}]...<br>` + monitor.innerHTML;
         }
 
-        // Spustit analýzu po načtení
-        updateFingerprint();
+        function generateGhostClick() {
+            const x = Math.floor(Math.random() * window.innerWidth);
+            const y = Math.floor(Math.random() * window.innerHeight);
+            
+            // Vytvoření falešné události pro trackery
+            const ghostEvent = new MouseEvent('click', {
+                'view': window,
+                'bubbles': true,
+                'clientX': x,
+                'clientY': y
+            });
+            document.dispatchEvent(ghostEvent);
+
+            clicks++;
+            document.getElementById('clicks').innerText = clicks;
+            const monitor = document.getElementById('network-monitor');
+            monitor.innerHTML = `<span style="color:#ffaa00">[GHOST] Fake interaction at [X:${x} Y:${y}]</span><br>` + monitor.innerHTML;
+        }
+
+        fetchIP();
     </script>
 </body>
 </html>
