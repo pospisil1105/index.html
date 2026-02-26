@@ -3,68 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST PROTOCOL</title>
+    <title>GHOST PROTOCOL | Active Shield</title>
     <style>
-        body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff41; padding: 20px; text-align: center; }
-        .box { border: 1px dashed #00ff41; padding: 15px; background: #000; margin: 20px auto; max-width: 400px; min-height: 100px; text-align: left; }
-        .btn { background: #00ff41; color: #000; padding: 20px; border: none; width: 100%; max-width: 400px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        #log { font-size: 0.7em; color: #888; margin-top: 20px; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto; }
+        body { font-family: 'Courier New', monospace; background: #050505; color: #00ff41; padding: 20px; text-align: center; }
+        .box { border: 1px solid #00ff41; padding: 15px; background: #000; margin: 20px auto; max-width: 450px; text-align: left; }
+        .btn { background: #00ff41; color: #000; padding: 20px; border: none; width: 100%; max-width: 450px; font-weight: bold; cursor: pointer; font-size: 1.1em; }
+        .btn:hover { box-shadow: 0 0 20px #00ff41; }
+        .active { background: #ff3e3e !important; color: #fff; }
+        #network-monitor { font-size: 0.7em; color: #008f11; margin-top: 20px; text-align: left; max-width: 450px; margin: 20px auto; height: 150px; overflow-y: hidden; border: 1px solid #222; padding: 10px; background: #000; }
+        .stat { color: #fff; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1 id="title">GHOST PROTOCOL</h1>
-    <p id="subtitle">Digitální stín:</p>
+    <h1>GHOST PROTOCOL</h1>
+    <p>Úroveň ochrany: <span id="shield-status" style="color:#ff3e3e">VYPNUTO</span></p>
     
-    <div class="box" id="data">Hledám signál...</div>
+    <div class="box" id="fingerprint">
+        [ Detekce zařízení... ]
+    </div>
 
-    <button class="btn" id="main-btn" onclick="toggleGhost()">AKTIVOVAT OCHRANU</button>
+    <button class="btn" id="action-btn" onclick="toggleShield()">SPUSTIT AKTIVNÍ CLONĚNÍ</button>
+    
+    <div id="network-monitor">
+        [ Monitor síťové aktivity prázdný ]
+    </div>
 
-    <div id="log"></div>
+    <div style="font-size: 0.8em; margin-top: 20px; color: #888;">
+        Odesláno klamných paketů: <span id="packet-count" class="stat">0</span><br>
+        Znehodnocení profilu: <span id="noise-level" class="stat">0%</span>
+    </div>
 
     <script>
-        const translations = {
-            cs: { title: "GHOST PROTOCOL", btn: "Aktivovat šum", stop: "Zastavit", battery: "Baterie", res: "Displej" },
-            en: { title: "GHOST PROTOCOL", btn: "Activate Noise", stop: "Stop", battery: "Battery", res: "Display" }
-        };
+        let isShieldActive = false;
+        let packetCounter = 0;
+        let shieldInterval;
 
-        const lang = navigator.language.startsWith('cs') ? 'cs' : 'en';
-        const t = translations[lang];
+        // Témata pro generování šumu (aby Google viděl chaos)
+        const keywords = ["crypto", "travel", "cooking", "health", "tech", "fashion", "cars", "nature", "science", "history"];
 
-        document.getElementById('title').innerText = t.title;
-        document.getElementById('main-btn').innerText = t.btn;
-
-        function updateData() {
-            const dataDiv = document.getElementById('data');
-            const basicInfo = `🖥️ ${t.res}: ${window.screen.width}x${window.screen.height}<br>🧠 Cores: ${navigator.hardwareConcurrency || '🔒'}`;
-            
-            // Pokus o baterii s pojistkou
+        function updateUI() {
+            const cores = navigator.hardwareConcurrency || "🔒";
+            document.getElementById('fingerprint').innerHTML = `
+                🔋 Baterie: <span id="batt">...</span><br>
+                🖥️ Rozlišení: ${window.screen.width}x${window.screen.height}<br>
+                🧠 Jádra CPU: ${cores}<br>
+                🌍 Status: VPN Detekována
+            `;
             if (navigator.getBattery) {
-                navigator.getBattery().then(b => {
-                    dataDiv.innerHTML = `🔋 ${t.battery}: ${Math.round(b.level * 100)}%<br>` + basicInfo;
-                }).catch(() => {
-                    dataDiv.innerHTML = `🔋 ${t.battery}: 🔒<br>` + basicInfo;
-                });
-            } else {
-                dataDiv.innerHTML = `🔋 ${t.battery}: 🔒<br>` + basicInfo;
+                navigator.getBattery().then(b => document.getElementById('batt').innerText = Math.round(b.level * 100) + "%");
             }
         }
 
-        let active = false;
-        function toggleGhost() {
-            const log = document.getElementById('log');
-            active = !active;
-            document.getElementById('main-btn').innerText = active ? t.stop : t.btn;
+        function toggleShield() {
+            const btn = document.getElementById('action-btn');
+            const status = document.getElementById('shield-status');
+            const monitor = document.getElementById('network-monitor');
             
-            if(active) {
-                log.innerHTML = ">>> MASKING STARTED...<br>" + log.innerHTML;
+            isShieldActive = !isShieldActive;
+
+            if (isShieldActive) {
+                btn.innerText = "ZASTAVIT CLONĚNÍ";
+                btn.classList.add('active');
+                status.innerText = "MAXIMÁLNÍ";
+                status.style.color = "#00ff41";
+                
+                shieldInterval = setInterval(() => {
+                    const kw = keywords[Math.floor(Math.random() * keywords.length)];
+                    const fakeUrl = `https://source.unsplash.com/100x100/?${kw}&sig=${Math.random()}`;
+                    
+                    // SKUTEČNÁ AKCE: Prohlížeč musí poslat GET požadavek na externí server
+                    fetch(fakeUrl, { mode: 'no-cors' }).then(() => {
+                        packetCounter++;
+                        document.getElementById('packet-count').innerText = packetCounter;
+                        document.getElementById('noise-level').innerText = Math.min(100, Math.floor(packetCounter / 0.5)) + "%";
+                        
+                        const time = new Date().toLocaleTimeString();
+                        monitor.innerHTML = `[${time}] DECOY SENT: target_interest=${kw}<br>` + monitor.innerHTML;
+                    });
+                }, 800);
             } else {
-                log.innerHTML = ">>> PAUSED.<br>" + log.innerHTML;
+                btn.innerText = "SPUSTIT AKTIVNÍ CLONĚNÍ";
+                btn.classList.remove('active');
+                status.innerText = "VYPNUTO";
+                status.style.color = "#ff3e3e";
+                clearInterval(shieldInterval);
             }
         }
 
-        // Spustit hned
-        updateData();
+        updateUI();
     </script>
 </body>
 </html>
