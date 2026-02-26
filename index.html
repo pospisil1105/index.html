@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST PROTOCOL | Global Edition</title>
+    <title>GHOST PROTOCOL | Professional</title>
     <style>
         :root { --neon: #00ff41; --danger: #ff0000; --bg: #050505; }
-        body { font-family: 'Courier New', monospace; background: var(--bg); color: var(--neon); padding: 15px; text-align: center; margin: 0; overflow-x: hidden; }
-        .container { max-width: 500px; margin: 0 auto; position: relative; }
-        h1 { font-size: 1.4em; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; text-shadow: 0 0 10px var(--neon); }
-        .warning-header { color: var(--danger); font-size: 0.8em; font-weight: bold; margin-bottom: 15px; animation: flash 1s infinite; text-transform: uppercase; }
-        @keyframes flash { 0%, 100% {opacity: 1;} 50% {opacity: 0.2;} }
+        body { font-family: 'Courier New', monospace; background: var(--bg); color: var(--neon); padding: 15px; text-align: center; margin: 0; }
+        .container { max-width: 500px; margin: 0 auto; }
+        h1 { font-size: 1.4em; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; }
         
-        .box { border: 1px solid var(--neon); padding: 12px; background: #000; margin-bottom: 10px; text-align: left; font-size: 0.82em; position: relative; }
+        /* Dynamický stavový řádek */
+        .status-header { font-size: 0.9em; font-weight: bold; margin-bottom: 20px; padding: 10px; border: 1px solid var(--danger); color: var(--danger); text-transform: uppercase; }
+        .status-protected { border-color: var(--neon) !important; color: var(--neon) !important; box-shadow: 0 0 10px rgba(0,255,65,0.2); }
+
+        .box { border: 1px solid #333; padding: 12px; background: #000; margin-bottom: 10px; text-align: left; font-size: 0.85em; }
         .box-title { color: #fff; font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #222; display: block; padding-bottom: 3px; text-transform: uppercase; }
         
-        .scan-line { position: absolute; width: 100%; height: 2px; background: rgba(0, 255, 65, 0.3); top: 0; left: 0; animation: scan 3s linear infinite; pointer-events: none; }
-        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
-
-        .btn { background: var(--neon); color: #000; padding: 18px; border: none; width: 100%; font-weight: 900; cursor: pointer; text-transform: uppercase; margin-top: 5px; transition: 0.2s; font-size: 1em; }
-        .panic-btn { background: var(--danger); color: #fff; margin-top: 10px; font-size: 1.2em; display: none; box-shadow: 0 0 30px var(--danger); border: 2px solid #fff; }
+        .btn { background: var(--neon); color: #000; padding: 18px; border: none; width: 100%; font-weight: 900; cursor: pointer; text-transform: uppercase; margin-top: 5px; font-size: 1em; }
+        .panic-btn { background: var(--danger); color: #fff; margin-top: 10px; font-size: 1.2em; display: none; border: 2px solid #fff; }
         
-        #log { font-size: 0.65em; color: #008f11; height: 130px; overflow-y: hidden; border: 1px solid #222; padding: 10px; background: #000; margin-top: 15px; border-left: 3px solid var(--neon); text-align: left; }
+        #log { font-size: 0.65em; color: #008f11; height: 140px; overflow-y: hidden; border: 1px solid #222; padding: 10px; background: #000; margin-top: 15px; text-align: left; }
         .stat-line { display: flex; justify-content: space-between; font-size: 0.75em; margin-top: 10px; color: #888; border-top: 1px solid #222; padding-top: 10px; }
         .val { color: #fff; }
     </style>
@@ -30,10 +29,9 @@
 
 <div class="container">
     <h1 id="t-title">GHOST PROTOCOL</h1>
-    <div class="warning-header" id="t-status">STATUS: CRITICALLY EXPOSED</div>
+    <div class="status-header" id="t-status">STATUS: CRITICALLY EXPOSED</div>
 
     <div class="box">
-        <div class="scan-line"></div>
         <span class="box-title" id="t-hw">HARDWARE FINGERPRINT</span>
         CPU: <span class="val" id="cpu">...</span> | RAM: <span class="val" id="ram">...</span><br>
         GPU: <span class="val" id="gpu">...</span><br>
@@ -45,7 +43,6 @@
         <span class="box-title" id="t-id">DIGITAL IDENTITY</span>
         IP: <span class="val" id="ip" style="color:#00d9ff">...</span><br>
         PLATFORM: <span class="val" id="ua">...</span><br>
-        AD-BLOCK: <span class="val" id="adblock">...</span><br>
         LANGUAGE: <span class="val" id="lang">...</span>
     </div>
 
@@ -67,56 +64,49 @@
 </div>
 
 <script>
-    // JAZYKOVÉ MUTACE
     const langSet = {
         cs: {
-            status: "STAV: KRITICKY ODHALEN",
+            status_exposed: "STAV: KRITICKY ODHALEN",
+            status_protected: "STAV: ZAHALENO / CHRÁNĚNO",
             hw: "OTISK HARDWARU",
             batt: "BATERIE",
             res: "DISPLEJ",
             id: "DIGITÁLNÍ IDENTITA",
-            sensor: "SENZORY (REÁLNÝ ČAS)",
+            sensor: "SENZORY",
             motion: "KLID",
-            btn: "AKTIVOVAT CLONU",
+            btn_stop: "ZASTAVIT CLONU",
             panic: "!!! PANIC MODE !!!",
-            ready: ">>> SYSTÉM PŘIPRAVEN...",
             shield_start: ">>> SPUŠTĚNO CLONĚNÍ. GENERUJI ŠUM...",
-            panic_start: "!!! SPUŠTĚN PANIC MODE: DESTRUKCE PROFILU !!!",
-            noise_msg: "ŠUM: Zájem o topic odeslán.",
-            ghost_msg: "[GHOST] Falešná interakce na"
+            noise_msg: "ŠUM: Odeslán paket",
+            ghost_msg: "[GHOST] Falešný dotek"
         },
         en: {
-            status: "STATUS: CRITICALLY EXPOSED",
+            status_exposed: "STATUS: CRITICALLY EXPOSED",
+            status_protected: "STATUS: PROTECTED / MASKED",
             hw: "HARDWARE FINGERPRINT",
             batt: "BATTERY",
             res: "DISPLAY",
             id: "DIGITAL IDENTITY",
-            sensor: "REAL-TIME SENSORS",
+            sensor: "SENSORS",
             motion: "STATIONARY",
-            btn: "ACTIVATE SHIELD",
+            btn_stop: "STOP SHIELD",
             panic: "!!! PANIC MODE !!!",
-            ready: ">>> SYSTEM READY...",
             shield_start: ">>> SHIELD ACTIVE. GENERATING NOISE...",
-            panic_start: "!!! PANIC MODE: PROFILE DESTRUCTION !!!",
-            noise_msg: "NOISE: Interest in topic sent.",
-            ghost_msg: "[GHOST] Fake interaction at"
+            noise_msg: "NOISE: Packet sent",
+            ghost_msg: "[GHOST] Fake interaction"
         }
     };
 
-    // Detekce jazyka
     const userLang = navigator.language.startsWith('cs') ? 'cs' : 'en';
     const t = langSet[userLang];
 
-    // Aplikace textů
-    document.getElementById('t-status').innerText = t.status;
+    // Základní nastavení textů
+    document.getElementById('t-status').innerText = t.status_exposed;
     document.getElementById('t-hw').innerText = t.hw;
     document.getElementById('t-batt-label').innerText = t.batt;
     document.getElementById('t-res-label').innerText = t.res;
     document.getElementById('t-id').innerText = t.id;
     document.getElementById('t-sensor').innerText = t.sensor;
-    document.getElementById('shield-btn').innerText = t.btn;
-    document.getElementById('panic-btn').innerText = t.panic;
-    document.getElementById('log').innerText = t.ready;
 
     let packets = 0, clicks = 0, shieldActive = false;
 
@@ -125,12 +115,11 @@
         document.getElementById('ram').innerText = (navigator.deviceMemory || "🔒") + " GB";
         const gl = document.createElement('canvas').getContext('webgl');
         const debug = gl.getExtension('WEBGL_debug_renderer_info');
-        document.getElementById('gpu').innerText = debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL).split(',')[0] : "🔒";
+        document.getElementById('gpu').innerText = debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL).split(',')[0].substring(0,25) : "🔒";
 
         if(navigator.getBattery) {
             const b = await navigator.getBattery();
-            const updateBatt = () => document.getElementById('batt').innerText = `${Math.round(b.level*100)}%`;
-            updateBatt();
+            document.getElementById('batt').innerText = `${Math.round(b.level*100)}%`;
         }
 
         fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => document.getElementById('ip').innerText = d.ip).catch(() => document.getElementById('ip').innerText = "VPN/TOR");
@@ -144,16 +133,25 @@
     }
 
     function activateShield() {
-        shieldActive = true;
-        document.getElementById('shield-btn').style.display = "none";
-        document.getElementById('panic-btn').style.display = "block";
-        document.getElementById('log').innerHTML = t.shield_start + "<br>" + document.getElementById('log').innerHTML;
-        setInterval(() => { if(shieldActive) injectNoise("SHIELD"); }, 1000);
+        if (!shieldActive) {
+            shieldActive = true;
+            // Změna stavu na zelený
+            const statusHeader = document.getElementById('t-status');
+            statusHeader.innerText = t.status_protected;
+            statusHeader.classList.add('status-protected');
+            
+            document.getElementById('shield-btn').innerText = t.btn_stop;
+            document.getElementById('panic-btn').style.display = "block";
+            document.getElementById('log').innerHTML = t.shield_start + "<br>" + document.getElementById('log').innerHTML;
+            
+            setInterval(() => { if(shieldActive) injectNoise("SHIELD"); }, 900);
+        } else {
+            location.reload();
+        }
     }
 
     function panicSequence() {
         const log = document.getElementById('log');
-        log.innerHTML = `<span style='color:red'>${t.panic_start}</span><br>` + log.innerHTML;
         const loop = setInterval(() => {
             injectNoise("PANIC");
             clicks++;
