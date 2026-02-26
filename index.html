@@ -3,76 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghost Protocol - Digital Azyl</title>
+    <title>GHOST PROTOCOL</title>
     <style>
-        body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff41; padding: 20px; line-height: 1.4; }
-        .box { border: 1px dashed #00ff41; padding: 15px; background: #000; margin-top: 20px; font-size: 0.9em; }
-        .btn { background: #00ff41; color: #000; padding: 18px; border: none; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; text-transform: uppercase; font-size: 1em; }
-        #log { font-size: 0.7em; color: #888; margin-top: 20px; height: 120px; overflow: hidden; border-top: 1px solid #222; padding-top: 10px; }
-        h1 { font-size: 1.5em; margin-bottom: 5px; }
+        body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff41; padding: 20px; text-align: center; }
+        .box { border: 1px dashed #00ff41; padding: 15px; background: #000; margin: 20px auto; max-width: 400px; min-height: 100px; text-align: left; }
+        .btn { background: #00ff41; color: #000; padding: 20px; border: none; width: 100%; max-width: 400px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        #log { font-size: 0.7em; color: #888; margin-top: 20px; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto; }
     </style>
 </head>
 <body>
 
-    <h1 id="title">GHOST PROTOCOL v1.0</h1>
-    <p id="subtitle">Identifikovaný digitální stín:</p>
+    <h1 id="title">GHOST PROTOCOL</h1>
+    <p id="subtitle">Digitální stín:</p>
     
-    <div class="box" id="data">Načítám parametry...</div>
+    <div class="box" id="data">Hledám signál...</div>
 
-    <button class="btn" id="main-btn" onclick="startGhost()">AKTIVOVAT DIGITÁLNÍ ŠUM</button>
+    <button class="btn" id="main-btn" onclick="toggleGhost()">AKTIVOVAT OCHRANU</button>
 
     <div id="log"></div>
 
     <script>
-        // JAZYKOVÉ MUTACE
         const translations = {
-            cs: { title: "GHOST PROTOCOL v1.0", subtitle: "Identifikovaný digitální stín:", btn: "AKTIVOVAT DIGITÁLNÍ ŠUM", alert: "Protokol aktivován. Tvůj prohlížeč nyní generuje digitální mlhu.", battery: "Baterie", cores: "Jádra procesoru", res: "Rozlišení", loc: "Lokalita", noise: "SPOUŠTÍM DIGITÁLNÍ ZÁSTĚNU..." },
-            de: { title: "GHOST PROTOKOLL v1.0", subtitle: "Identifizierter digitaler Schatten:", btn: "DIGITALES RAUSCHEN AKTIVIEREN", alert: "Protokoll aktiviert. Ihr Browser erzeugt nun digitalen Nebel.", battery: "Batterie", cores: "Prozessorkerne", res: "Auflösung", loc: "Standort", noise: "DIGITALE BARRIERE WIRD GESTARTET..." },
-            en: { title: "GHOST PROTOCOL v1.0", subtitle: "Identified Digital Shadow:", btn: "ACTIVATE DIGITAL NOISE", alert: "Protocol activated. Your browser is now generating digital fog.", battery: "Battery", cores: "CPU Cores", res: "Resolution", loc: "Location", noise: "STARTING DIGITAL SHIELD..." }
+            cs: { title: "GHOST PROTOCOL", btn: "Aktivovat šum", stop: "Zastavit", battery: "Baterie", res: "Displej" },
+            en: { title: "GHOST PROTOCOL", btn: "Activate Noise", stop: "Stop", battery: "Battery", res: "Display" }
         };
 
-        // Detekce jazyka
-        let lang = navigator.language.split('-')[0]; 
-        if (!translations[lang]) lang = 'en'; // Pokud jazyk neznáme, dáme angličtinu
-
+        const lang = navigator.language.startsWith('cs') ? 'cs' : 'en';
         const t = translations[lang];
 
-        // Aplikace překladu
         document.getElementById('title').innerText = t.title;
-        document.getElementById('subtitle').innerText = t.subtitle;
         document.getElementById('main-btn').innerText = t.btn;
 
-        function showData() {
-            const batteryLevel = "Zjišťuji...";
-            const info = `
-                🔋 ${t.battery}: <span id="batt">...</span><br>
-                🖥️ ${t.res}: ${window.screen.width}x${window.screen.height}<br>
-                🧠 ${t.cores}: ${navigator.hardwareConcurrency || '?'}<br>
-                🌍 ${t.loc}: Sagard / Rujána (IP)
-            `;
-            document.getElementById('data').innerHTML = info;
-
+        function updateData() {
+            const dataDiv = document.getElementById('data');
+            const basicInfo = `🖥️ ${t.res}: ${window.screen.width}x${window.screen.height}<br>🧠 Cores: ${navigator.hardwareConcurrency || '🔒'}`;
+            
+            // Pokus o baterii s pojistkou
             if (navigator.getBattery) {
                 navigator.getBattery().then(b => {
-                    document.getElementById('batt').innerText = Math.round(b.level * 100) + "%";
+                    dataDiv.innerHTML = `🔋 ${t.battery}: ${Math.round(b.level * 100)}%<br>` + basicInfo;
+                }).catch(() => {
+                    dataDiv.innerHTML = `🔋 ${t.battery}: 🔒<br>` + basicInfo;
                 });
+            } else {
+                dataDiv.innerHTML = `🔋 ${t.battery}: 🔒<br>` + basicInfo;
             }
         }
 
-        function startGhost() {
+        let active = false;
+        function toggleGhost() {
             const log = document.getElementById('log');
-            log.innerHTML = `>>> ${t.noise}<br>` + log.innerHTML;
+            active = !active;
+            document.getElementById('main-btn').innerText = active ? t.stop : t.btn;
             
-            setInterval(() => {
-                const targets = ['google-analytics.com', 'facebook.com/tr', 'doubleclick.net', 'adservice.google.com'];
-                const randomTarget = targets[Math.floor(Math.random() * targets.length)];
-                log.innerHTML = `[${new Date().toLocaleTimeString()}] Fake packet -> ${randomTarget}<br>` + log.innerHTML;
-            }, 1500);
-
-            alert(t.alert);
+            if(active) {
+                log.innerHTML = ">>> MASKING STARTED...<br>" + log.innerHTML;
+            } else {
+                log.innerHTML = ">>> PAUSED.<br>" + log.innerHTML;
+            }
         }
 
-        showData();
+        // Spustit hned
+        updateData();
     </script>
 </body>
 </html>
