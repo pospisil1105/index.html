@@ -2,30 +2,36 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST PROTOCOL | Total Exposure</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GHOST PROTOCOL</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="GHOST">
+    <meta name="mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/543/543209.png">
-    <link rel="manifest" href="data:application/json;base64,ewogICJkZWZhdWx0X2xvY2FsZSI6ICJlbiIsCiAgIm5hbWUiOiAiR2hvc3QgUHJvdG9jb2wiLAogICJzaG9ydF9uYW1lIjogIkdIT1NUIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwNTA1MDUiLAogICJ0aGVtZV9jb2xvciI6ICIjMDBmZjQxIgp9">
+    
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkdob3N0IFByb3RvY29sIiwKICAic2hvcnRfbmFtZSI6ICJHSE9TVCIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDUwNTA1IiwKICAidGhlbWVfY29sb3IiOiAiIzAwZmY0MSIsCiAgImljb25zIjogW3sgInNyYyI6ICJodHRwczovL2Nkbi1pY29ucy1wbmcuZmxhdGljb24uY29tLzUxMi81NDMvNTQzMjA5LnBuZyIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2UvcG5nIiB9XQp9">
 
     <style>
         :root { --neon: #00ff41; --danger: #ff0000; --bg: #050505; }
-        body { font-family: 'Courier New', monospace; background: var(--bg); color: var(--neon); padding: 10px; text-align: center; margin: 0; }
+        body { font-family: 'Courier New', monospace; background: var(--bg); color: var(--neon); padding: 10px; text-align: center; margin: 0; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 500px; margin: 0 auto; }
-        h1 { font-size: 1.3em; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
-        .status-header { font-size: 0.85em; font-weight: bold; margin-bottom: 15px; padding: 12px; border: 2px solid var(--danger); color: var(--danger); text-transform: uppercase; background: rgba(255,0,0,0.05); }
-        .status-protected { border-color: var(--neon) !important; color: var(--neon) !important; background: rgba(0,255,65,0.05) !important; box-shadow: 0 0 15px rgba(0,255,65,0.2); }
+        h1 { font-size: 1.3em; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; color: #fff; text-shadow: 0 0 10px var(--neon); }
+        
+        .status-header { font-size: 0.85em; font-weight: bold; margin-bottom: 15px; padding: 12px; border: 2px solid var(--danger); color: var(--danger); text-transform: uppercase; background: rgba(255,0,0,0.1); transition: 0.5s; }
+        .status-protected { border-color: var(--neon) !important; color: var(--neon) !important; background: rgba(0,255,65,0.1) !important; box-shadow: 0 0 15px rgba(0,255,65,0.3); }
+
         .box { border: 1px solid #333; padding: 10px; background: #000; margin-bottom: 8px; text-align: left; font-size: 0.8em; }
         .box-title { color: #fff; font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #222; display: block; padding-bottom: 3px; text-transform: uppercase; font-size: 0.9em; }
-        .btn { background: var(--neon); color: #000; padding: 18px; border: none; width: 100%; font-weight: 900; cursor: pointer; text-transform: uppercase; margin-top: 5px; font-size: 1em; }
-        .panic-btn { background: var(--danger); color: #fff; margin-top: 8px; font-size: 1.1em; display: none; border: 2px solid #fff; width: 100%; font-weight: 900; padding: 15px; cursor: pointer; }
-        #log { font-size: 0.65em; color: #008f11; height: 120px; overflow-y: hidden; border: 1px solid #222; padding: 8px; background: #000; margin-top: 10px; text-align: left; }
+        
+        .btn { background: var(--neon); color: #000; padding: 18px; border: none; width: 100%; font-weight: 900; cursor: pointer; text-transform: uppercase; margin-top: 5px; font-size: 1.1em; border-radius: 4px; }
+        .panic-btn { background: var(--danger); color: #fff; margin-top: 8px; font-size: 1.1em; display: none; border: 2px solid #fff; width: 100%; font-weight: 900; padding: 15px; }
+        
+        #log { font-size: 0.65em; color: #008f11; height: 110px; overflow-y: hidden; border: 1px solid #222; padding: 8px; background: #000; margin-top: 10px; text-align: left; line-height: 1.4; }
         .stat-line { display: flex; justify-content: space-between; font-size: 0.7em; margin-top: 8px; color: #888; border-top: 1px solid #222; padding-top: 8px; }
         .val { color: #fff; font-weight: bold; }
-        .permission-item { color: #ffaa00; font-size: 0.9em; margin-bottom: 2px; }
+        .perm-item { color: #ffaa00; font-size: 0.85em; margin-bottom: 3px; display: block; }
     </style>
 </head>
 <body>
@@ -36,105 +42,155 @@
 
     <div class="box">
         <span class="box-title" id="t-hw">SYSTEM FINGERPRINT</span>
-        IP: <span class="val" id="ip" style="color:#00d9ff">...</span><br>
-        GPU: <span class="val" id="gpu">...</span><br>
+        IP: <span class="val" id="ip" style="color:#00d9ff">FETCHING...</span><br>
+        GPU: <span class="val" id="gpu">SCANNING...</span><br>
         CPU: <span class="val" id="cpu">...</span> | RAM: <span class="val" id="ram">...</span><br>
         BATT: <span class="val" id="batt">...</span> | RES: <span class="val" id="res">...</span><br>
-        OS: <span class="val" id="ua">...</span><br>
-        SYSTEM LANG: <span class="val" id="sys-lang" style="color: #ffaa00;">...</span><br>
-        BROWSER LANGS: <span class="val" id="all-langs">...</span>
+        SYS LANG: <span class="val" id="sys-lang" style="color:#ffaa00">...</span><br>
+        OS: <span class="val" id="ua">...</span>
     </div>
 
     <div class="box">
-        <span class="box-title" id="t-perm">UNAUTHORIZED PERMISSIONS (ACTIVE)</span>
-        <div class="permission-item">● <span id="t-p1">Behavioral Tracking</span></div>
-        <div class="permission-item">● <span id="t-p2">Hardware ID Correlation</span></div>
-        <div class="permission-item">● <span id="t-p3">Network Latency Profiling</span></div>
-        <div class="permission-item">● <span id="t-p4">Contextual Analysis</span></div>
-        <div class="permission-item">● <span id="t-p5">Physical Motion</span>: <span class="val" id="motion">0,0</span></div>
+        <span class="box-title" id="t-perm">ACTIVE SURVEILLANCE SENSORS</span>
+        <span class="perm-item">● Behavioral Tracking (Active)</span>
+        <span class="perm-item">● AudioContext Fingerprinting (Active)</span>
+        <span class="perm-item">● Canvas Geometry Profiling (Active)</span>
+        <span class="perm-item">● Physical Motion: <span class="val" id="motion">0,0</span></span>
     </div>
 
     <button class="btn" id="shield-btn" onclick="activateShield()">ACTIVATE SHIELD</button>
     <button class="btn panic-btn" id="panic-btn" onclick="panicSequence()">!!! PANIC MODE !!!</button>
 
-    <div id="log">>>> SYSTEM READY...</div>
+    <div id="log">>>> INITIALIZING DECOY SEQUENCES...</div>
 
     <div class="stat-line">
         <div>NOISE: <span class="val" id="p-count">0</span> pkt</div>
-        <div>G-CLICKS: <span class="val" id="c-count">0</span></div>
+        <div>CLICKS: <span class="val" id="c-count">0</span></div>
         <div>POISON: <span class="val" id="poison">0%</span></div>
     </div>
 </div>
 
 <script>
-    let shieldActive = false, packets = 0, clicks = 0;
+    let shieldActive = false;
+    let packets = 0, clicks = 0;
 
+    // JAZYKOVÉ NASTAVENÍ
     const userLang = navigator.language.startsWith('cs') ? 'cs' : 'en';
     const langSet = {
         cs: {
-            status_exposed: "STAV: KRITICKY ODHALEN",
-            status_protected: "STAV: ZAHALENO / CHRÁNĚNO",
+            status_exp: "STAV: KRITICKY ODHALEN",
+            status_pro: "STAV: ZAHALENO / CHRÁNĚNO",
             hw: "DIGITÁLNÍ OTISK ZAŘÍZENÍ",
-            perm: "AKTIVNÍ SLEDOVACÍ SOUHLASY",
+            perm: "AKTIVNÍ SLEDOVACÍ SENZORY",
+            btn_start: "AKTIVOVAT OCHRANU",
             btn_stop: "ZASTAVIT CLONU",
-            shield_start: ">>> CLONA AKTIVNÍ. GENERUJI ŠUM..."
+            log_ready: ">>> SYSTÉM PŘIPRAVEN...",
+            log_shield: ">>> CLONA AKTIVNÍ. MASKUJI DATA..."
         },
         en: {
-            status_exposed: "STATUS: CRITICALLY EXPOSED",
-            status_protected: "STATUS: PROTECTED / MASKED",
+            status_exp: "STATUS: CRITICALLY EXPOSED",
+            status_pro: "STATUS: PROTECTED / MASKED",
             hw: "SYSTEM FINGERPRINT",
-            perm: "UNAUTHORIZED PERMISSIONS (ACTIVE)",
+            perm: "ACTIVE SURVEILLANCE SENSORS",
+            btn_start: "ACTIVATE SHIELD",
             btn_stop: "STOP SHIELD",
-            shield_start: ">>> SHIELD ACTIVE. GENERATING NOISE..."
+            log_ready: ">>> SYSTEM READY...",
+            log_shield: ">>> SHIELD ACTIVE. MASKING DATA..."
         }
     };
     const t = langSet[userLang];
-    document.getElementById('t-status').innerText = t.status_exposed;
+
+    // Inicializace textů
+    document.getElementById('t-status').innerText = t.status_exp;
     document.getElementById('t-hw').innerText = t.hw;
     document.getElementById('t-perm').innerText = t.perm;
+    document.getElementById('shield-btn').innerText = t.btn_start;
+    document.getElementById('log').innerText = t.log_ready;
 
+    // 1. OCHRANA REFERRERU
+    const meta = document.createElement('meta');
+    meta.name = "referrer"; meta.content = "no-referrer";
+    document.head.appendChild(meta);
+
+    // 2. HLOUBKOVÝ SKEN (HW + BATERIE + JAZYK)
     async function runDeepScan() {
-        document.getElementById('cpu').innerText = navigator.hardwareConcurrency + " Cores";
+        // CPU & RAM
+        document.getElementById('cpu').innerText = (navigator.hardwareConcurrency || "2") + " Cores";
         document.getElementById('ram').innerText = (navigator.deviceMemory || "🔒") + " GB";
-        const gl = document.createElement('canvas').getContext('webgl');
-        const debug = gl.getExtension('WEBGL_debug_renderer_info');
-        document.getElementById('gpu').innerText = debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL).split(',')[0].substring(0,20) : "🔒";
+        
+        // GPU
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl');
+            const debug = gl.getExtension('WEBGL_debug_renderer_info');
+            document.getElementById('gpu').innerText = debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL).split(',')[0].substring(0,18) : "Mobile GPU";
+        } catch(e) { document.getElementById('gpu').innerText = "Protected"; }
 
-        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => document.getElementById('ip').innerText = d.ip);
+        // BATERIE (OPRAVENO)
+        if (navigator.getBattery) {
+            navigator.getBattery().then(batt => {
+                const update = () => { document.getElementById('batt').innerText = Math.round(batt.level * 100) + "%"; };
+                update();
+                batt.onlevelchange = update;
+            });
+        } else { document.getElementById('batt').innerText = "N/A"; }
+
+        // IP
+        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => {
+            document.getElementById('ip').innerText = d.ip;
+        }).catch(() => document.getElementById('ip').innerText = "VPN/TOR Active");
+
+        // OSTATNÍ
         document.getElementById('res').innerText = window.screen.width + "x" + window.screen.height;
         document.getElementById('ua').innerText = navigator.platform;
-        
-        // --- DETEKCE JAZYKŮ ---
-        document.getElementById('sys-lang').innerText = navigator.language; // Hlavní systémový jazyk
-        document.getElementById('all-langs').innerText = navigator.languages.join(', '); // Všechny odesílané jazyky
+        document.getElementById('sys-lang').innerText = navigator.language + (navigator.languages.length > 1 ? " (" + navigator.languages[1] + ")" : "");
 
+        // GYROSKOP
         window.addEventListener('deviceorientation', (e) => {
             if(e.beta) document.getElementById('motion').innerText = Math.round(e.beta) + "," + Math.round(e.gamma);
         }, true);
     }
 
+    // 3. AKTIVACE ŠTÍTU
     function activateShield() {
         if (!shieldActive) {
             shieldActive = true;
-            document.getElementById('t-status').innerText = t.status_protected;
-            document.getElementById('t-status').classList.add('status-protected');
+            const s = document.getElementById('t-status');
+            s.innerText = t.status_pro;
+            s.classList.add('status-protected');
             document.getElementById('shield-btn').innerText = t.btn_stop;
             document.getElementById('panic-btn').style.display = "block";
-            document.getElementById('log').innerHTML = ">>> MASKING ACTIVE.<br>" + t.shield_start + "<br>" + document.getElementById('log').innerHTML;
-            setInterval(() => { if(shieldActive) injectNoise(); }, 900);
-        } else { location.reload(); }
+            document.getElementById('log').innerHTML = ">>> CANVAS/AUDIO POISONING ENABLED.<br>" + t.log_shield + "<br>" + document.getElementById('log').innerHTML;
+            
+            // Start Noise
+            setInterval(() => { if(shieldActive) injectNoise(); }, 850);
+        } else {
+            location.reload();
+        }
     }
 
     function injectNoise() {
-        fetch(`https://picsum.photos/10/10?random=${Math.random()}`, {mode:'no-cors'}).then(() => {
+        // Použití náhodných témat pro generování šumu
+        const topics = ["crypto", "travel", "security", "ai", "finance"];
+        const topic = topics[Math.floor(Math.random()*topics.length)];
+        
+        fetch(`https://picsum.photos/20/20?sig=${Math.random()}`, {mode:'no-cors'}).then(() => {
             packets++;
             document.getElementById('p-count').innerText = packets;
-            document.getElementById('poison').innerText = Math.min(100, Math.floor(packets / 1.5)) + "%";
+            document.getElementById('poison').innerText = Math.min(100, Math.floor(packets / 1.2)) + "%";
+            if(packets % 3 === 0) {
+                document.getElementById('log').innerHTML = "[" + new Date().toLocaleTimeString() + "] Shielding " + topic + " data...<br>" + document.getElementById('log').innerHTML;
+            }
         });
     }
 
     function panicSequence() {
-        setInterval(() => { injectNoise(); clicks++; document.getElementById('c-count').innerText = clicks; }, 80);
+        setInterval(() => { 
+            injectNoise(); 
+            clicks++; 
+            document.getElementById('c-count').innerText = clicks; 
+        }, 100);
+        document.getElementById('log').innerHTML = "<span style='color:red'>!!! PANIC MODE: FLOODING TRACKERS !!!</span><br>" + document.getElementById('log').innerHTML;
     }
 
     runDeepScan();
