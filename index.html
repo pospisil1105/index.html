@@ -3,126 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST PROTOCOL | Digital Azyl</title>
+    <title>GHOST PROTOCOL</title>
     <style>
-        body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff41; padding: 20px; line-height: 1.4; overflow-x: hidden; }
-        .container { max-width: 500px; margin: 0 auto; }
-        h1 { font-size: 1.8em; text-align: center; text-shadow: 0 0 10px #00ff41; }
-        .box { border: 1px dashed #00ff41; padding: 15px; background: #000; margin-top: 10px; min-height: 100px; box-shadow: inset 0 0 10px #003300; }
-        .btn { background: #00ff41; color: #000; padding: 20px; border: none; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; text-transform: uppercase; font-size: 1.1em; transition: 0.3s; }
-        .btn-active { background: #ff3e3e; color: #fff; box-shadow: 0 0 20px #ff3e3e; }
-        #log { font-size: 0.75em; color: #00cc33; margin-top: 20px; height: 180px; overflow-y: auto; border-top: 1px solid #222; padding-top: 10px; background: rgba(0, 20, 0, 0.5); padding: 10px; }
-        .meta { font-size: 0.8em; color: #888; text-align: center; margin-top: 10px; }
+        body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff41; padding: 20px; text-align: center; }
+        .box { border: 1px dashed #00ff41; padding: 15px; background: #000; margin: 20px auto; max-width: 400px; min-height: 100px; text-align: left; }
+        .btn { background: #00ff41; color: #000; padding: 20px; border: none; width: 100%; max-width: 400px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        #log { font-size: 0.7em; color: #888; margin-top: 20px; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto; }
     </style>
 </head>
 <body>
 
-<div class="container">
     <h1 id="title">GHOST PROTOCOL</h1>
-    <p id="subtitle" style="text-align:center;">Analýza digitálního stínu...</p>
+    <p id="subtitle">Digitální stín:</p>
     
-    <div class="box" id="data">
-        Initializing scanners...
-    </div>
+    <div class="box" id="data">Hledám signál...</div>
 
     <button class="btn" id="main-btn" onclick="toggleGhost()">AKTIVOVAT OCHRANU</button>
 
     <div id="log"></div>
-    <p class="meta">Location: Sagard, Rügen | Node: Peer-to-Peer</p>
-</div>
 
-<script>
-    // JAZYKOVÝ MODUL
-    const translations = {
-        cs: {
-            title: "GHOST PROTOCOL",
-            subtitle: "Tvůj digitální otisk:",
-            btn: "Aktivovat šum",
-            stop: "Vypnout ochranu",
-            battery: "Baterie",
-            res: "Displej",
-            cores: "Jádra CPU",
-            blocked: "[BLOKOVÁNO APPLEM]",
-            init: ">>> PROTOKOL ZAPNUT. Matu Google algoritmy...",
-            pause: ">>> OCHRANA POZASTAVENA. Google tě vidí.",
-            messages: [
-                "Generuji falešnou polohu v Karibiku...",
-                "Odesílám Googlu náhodný nákupní seznam...",
-                "Apple si myslí, že spíš. Dobrá práce.",
-                "Maskuji tvou identitu za 70letou babičku z Berlína...",
-                "Blokuji pokus o geofencing ze Sagardu..."
-            ]
-        },
-        en: {
-            title: "GHOST PROTOCOL",
-            subtitle: "Your digital footprint:",
-            btn: "Activate Noise",
-            stop: "Stop Protection",
-            battery: "Battery",
-            res: "Display",
-            cores: "CPU Cores",
-            blocked: "[BLOCKED BY APPLE]",
-            init: ">>> PROTOCOL ACTIVE. Confusing Google algorithms...",
-            pause: ">>> PROTECTION PAUSED. Google is watching.",
-            messages: [
-                "Generating fake location in Caribbean...",
-                "Sending random shopping list to Google...",
-                "Apple thinks you are asleep. Good job.",
-                "Masking your identity as a 70yo grandma from Berlin...",
-                "Blocking geofencing attempt from Sagard..."
-            ]
-        }
-    };
+    <script>
+        const translations = {
+            cs: { title: "GHOST PROTOCOL", btn: "Aktivovat šum", stop: "Zastavit", battery: "Baterie", res: "Displej" },
+            en: { title: "GHOST PROTOCOL", btn: "Activate Noise", stop: "Stop", battery: "Battery", res: "Display" }
+        };
 
-    // Detekce jazyka (pokud není čeština, dáme angličtinu)
-    const lang = navigator.language.startsWith('cs') ? 'cs' : 'en';
-    const t = translations[lang];
+        const lang = navigator.language.startsWith('cs') ? 'cs' : 'en';
+        const t = translations[lang];
 
-    // Nastavení textů
-    document.getElementById('title').innerText = t.title;
-    document.getElementById('subtitle').innerText = t.subtitle;
-    document.getElementById('main-btn').innerText = t.btn;
+        document.getElementById('title').innerText = t.title;
+        document.getElementById('main-btn').innerText = t.btn;
 
-    let ghostActive = false;
-    let ghostInterval;
-
-    function updateData() {
-        const displayInfo = 🖥️ ${t.res}: ${window.screen.width}x${window.screen.height}<br>🧠 ${t.cores}: ${navigator.hardwareConcurrency || t.blocked};
-        
-        if (navigator.getBattery) {
-            navigator.getBattery().then(b => {
-                document.getElementById('data').innerHTML = 🔋 ${t.battery}: ${Math.round(b.level * 100)}%<br> + displayInfo;
-            });
-        } else {
-            document.getElementById('data').innerHTML =🔋 ${t.battery}: ${t.blocked}<br>` + displayInfo;
-        }
-    }
-
-    function toggleGhost() {
-        const btn = document.getElementById('main-btn');
-        const log = document.getElementById('log');
-
-        if (!ghostActive) {
-            ghostActive = true;
-            btn.innerText = t.stop;
-            btn.classList.add('btn-active');
-            log.innerHTML = <span style="color:#fff">${t.init}</span><br> + log.innerHTML;
+        function updateData() {
+            const dataDiv = document.getElementById('data');
+            const basicInfo = 🖥️ ${t.res}: ${window.screen.width}x${window.screen.height}<br>🧠 Cores: ${navigator.hardwareConcurrency || '🔒'};
             
-            ghostInterval = setInterval(() => {
-                const msg = t.messages[Math.floor(Math.random() * t.messages.length)];
-                log.innerHTML = [${new Date().toLocaleTimeString()}] ${msg}<br> + log.innerHTML;
-            }, 1200);
-        } else {
-            ghostActive = false;
-            btn.innerText = t.btn;
-            btn.classList.remove('btn-active');
-            clearInterval(ghostInterval);
-            log.innerHTML = <span style="color:#ff3e3e">${t.pause}</span><br> + log.innerHTML;
+            // Pokus o baterii s pojistkou
+            if (navigator.getBattery) {
+                navigator.getBattery().then(b => {
+                    dataDiv.innerHTML =🔋 ${t.battery}: ${Math.round(b.level * 100)}%<br>` + basicInfo;
+                }).catch(() => {
+                    dataDiv.innerHTML =🔋 ${t.battery}: 🔒<br>` + basicInfo;
+                });
+            } else {
+                dataDiv.innerHTML =🔋 ${t.battery}: 🔒<br>` + basicInfo;
+            }
         }
-    }
 
-    updateData();
-</script>
+        let active = false;
+        function toggleGhost() {
+            const log = document.getElementById('log');
+            active = !active;
+            document.getElementById('main-btn').innerText = active ? t.stop : t.btn;
+            
+            if(active) {
+                log.innerHTML = ">>> MASKING STARTED...<br>" + log.innerHTML;
+            } else {
+                log.innerHTML = ">>> PAUSED.<br>" + log.innerHTML;
+            }
+        }
 
+        // Spustit hned
+        updateData();
+    </script>
 </body>
 </html>
