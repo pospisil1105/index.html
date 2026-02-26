@@ -6,32 +6,33 @@
     <title>GHOST PROTOCOL | Active Shield</title>
     <style>
         body { font-family: 'Courier New', monospace; background: #050505; color: #00ff41; padding: 20px; text-align: center; }
-        .box { border: 1px solid #00ff41; padding: 15px; background: #000; margin: 20px auto; max-width: 450px; text-align: left; }
-        .btn { background: #00ff41; color: #000; padding: 20px; border: none; width: 100%; max-width: 450px; font-weight: bold; cursor: pointer; font-size: 1.1em; }
-        .btn:hover { box-shadow: 0 0 20px #00ff41; }
-        .active { background: #ff3e3e !important; color: #fff; }
-        #network-monitor { font-size: 0.7em; color: #008f11; margin-top: 20px; text-align: left; max-width: 450px; margin: 20px auto; height: 150px; overflow-y: hidden; border: 1px solid #222; padding: 10px; background: #000; }
+        .box { border: 1px solid #00ff41; padding: 15px; background: #000; margin: 20px auto; max-width: 450px; text-align: left; box-shadow: 0 0 10px #003300; }
+        .btn { background: #00ff41; color: #000; padding: 20px; border: none; width: 100%; max-width: 450px; font-weight: bold; cursor: pointer; font-size: 1.1em; transition: 0.3s; }
+        .btn:active { transform: scale(0.98); }
+        .active { background: #ff3e3e !important; color: #fff; box-shadow: 0 0 20px #ff3e3e; }
+        #network-monitor { font-size: 0.7em; color: #008f11; margin-top: 20px; text-align: left; max-width: 450px; margin: 20px auto; height: 180px; overflow-y: hidden; border: 1px solid #222; padding: 10px; background: #000; }
         .stat { color: #fff; font-weight: bold; }
+        .ip-box { color: #00d9ff; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <h1>GHOST PROTOCOL</h1>
-    <p>Úroveň ochrany: <span id="shield-status" style="color:#ff3e3e">VYPNUTO</span></p>
+    <p>Ochrana identity: <span id="shield-status" style="color:#ff3e3e">ODKRYTA</span></p>
     
     <div class="box" id="fingerprint">
-        [ Detekce zařízení... ]
+        [ Provádím hloubkovou analýzu... ]
     </div>
 
     <button class="btn" id="action-btn" onclick="toggleShield()">SPUSTIT AKTIVNÍ CLONĚNÍ</button>
     
     <div id="network-monitor">
-        [ Monitor síťové aktivity prázdný ]
+        [ Čekám na inicializaci protokolu ]
     </div>
 
     <div style="font-size: 0.8em; margin-top: 20px; color: #888;">
-        Odesláno klamných paketů: <span id="packet-count" class="stat">0</span><br>
-        Znehodnocení profilu: <span id="noise-level" class="stat">0%</span>
+        Klamné požadavky: <span id="packet-count" class="stat">0</span><br>
+        Znehodnocení dat Googlu: <span id="noise-level" class="stat">0%</span>
     </div>
 
     <script>
@@ -39,19 +40,33 @@
         let packetCounter = 0;
         let shieldInterval;
 
-        // Témata pro generování šumu (aby Google viděl chaos)
-        const keywords = ["crypto", "travel", "cooking", "health", "tech", "fashion", "cars", "nature", "science", "history"];
+        const keywords = ["crypto", "travel", "cooking", "investing", "luxury", "fitness", "gaming", "politics", "science", "meditation"];
 
-        function updateUI() {
+        async function updateFingerprint() {
+            const dataDiv = document.getElementById('fingerprint');
             const cores = navigator.hardwareConcurrency || "🔒";
-            document.getElementById('fingerprint').innerHTML = `
+            
+            // Základní HW data
+            let info = `
                 🔋 Baterie: <span id="batt">...</span><br>
                 🖥️ Rozlišení: ${window.screen.width}x${window.screen.height}<br>
                 🧠 Jádra CPU: ${cores}<br>
-                🌍 Status: VPN Detekována
+                🌍 IP adresa: <span id="ip-val" class="ip-box">Zjišťuji...</span>
             `;
+            dataDiv.innerHTML = info;
+
+            // Zjištění baterie
             if (navigator.getBattery) {
                 navigator.getBattery().then(b => document.getElementById('batt').innerText = Math.round(b.level * 100) + "%");
+            }
+
+            // Zjištění SKUTEČNÉ IP adresy (veřejné)
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                document.getElementById('ip-val').innerText = data.ip;
+            } catch (e) {
+                document.getElementById('ip-val').innerText = "Blokováno (Firewall)";
             }
         }
 
@@ -65,33 +80,35 @@
             if (isShieldActive) {
                 btn.innerText = "ZASTAVIT CLONĚNÍ";
                 btn.classList.add('active');
-                status.innerText = "MAXIMÁLNÍ";
+                status.innerText = "MAXIMÁLNÍ (AKTIVNÍ ŠUM)";
                 status.style.color = "#00ff41";
                 
                 shieldInterval = setInterval(() => {
                     const kw = keywords[Math.floor(Math.random() * keywords.length)];
-                    const fakeUrl = `https://source.unsplash.com/100x100/?${kw}&sig=${Math.random()}`;
+                    // Generování reálného síťového požadavku pro zmatení trackerů
+                    const fakeUrl = `https://source.unsplash.com/100x100/?${kw}&seed=${Math.random()}`;
                     
-                    // SKUTEČNÁ AKCE: Prohlížeč musí poslat GET požadavek na externí server
                     fetch(fakeUrl, { mode: 'no-cors' }).then(() => {
                         packetCounter++;
                         document.getElementById('packet-count').innerText = packetCounter;
-                        document.getElementById('noise-level').innerText = Math.min(100, Math.floor(packetCounter / 0.5)) + "%";
+                        document.getElementById('noise-level').innerText = Math.min(100, Math.floor(packetCounter / 1.2)) + "%";
                         
                         const time = new Date().toLocaleTimeString();
-                        monitor.innerHTML = `[${time}] DECOY SENT: target_interest=${kw}<br>` + monitor.innerHTML;
+                        monitor.innerHTML = `[${time}] SÍŤOVÝ ŠUM: odeslán dotaz na téma "${kw}"<br>` + monitor.innerHTML;
                     });
-                }, 800);
+                }, 700);
             } else {
                 btn.innerText = "SPUSTIT AKTIVNÍ CLONĚNÍ";
                 btn.classList.remove('active');
-                status.innerText = "VYPNUTO";
+                status.innerText = "ODKRYTA";
                 status.style.color = "#ff3e3e";
                 clearInterval(shieldInterval);
+                monitor.innerHTML = `>>> PROTOKOL ZASTAVEN...<br>` + monitor.innerHTML;
             }
         }
 
-        updateUI();
+        // Spustit analýzu po načtení
+        updateFingerprint();
     </script>
 </body>
 </html>
