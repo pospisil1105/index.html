@@ -3,112 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST PROTOCOL | Absolute Decoy</title>
+    <title>GHOST PROTOCOL | Global Edition</title>
     <style>
-        body { font-family: 'Courier New', monospace; background: #050505; color: #00ff41; padding: 20px; text-align: center; overflow-x: hidden; }
-        .box { border: 1px solid #00ff41; padding: 15px; background: #000; margin: 10px auto; max-width: 450px; text-align: left; }
-        .btn { background: #00ff41; color: #000; padding: 15px; border: none; width: 100%; max-width: 450px; font-weight: bold; cursor: pointer; margin-bottom: 10px; text-transform: uppercase; transition: 0.2s; }
-        .panic-btn { background: #ff0000; color: #fff; font-size: 1.2em; box-shadow: 0 0 25px #ff0000; display: none; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        :root { --neon: #00ff41; --danger: #ff0000; --bg: #050505; }
+        body { font-family: 'Courier New', monospace; background: var(--bg); color: var(--neon); padding: 15px; text-align: center; margin: 0; overflow-x: hidden; }
+        .container { max-width: 500px; margin: 0 auto; position: relative; }
+        h1 { font-size: 1.4em; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; text-shadow: 0 0 10px var(--neon); }
+        .warning-header { color: var(--danger); font-size: 0.8em; font-weight: bold; margin-bottom: 15px; animation: flash 1s infinite; text-transform: uppercase; }
+        @keyframes flash { 0%, 100% {opacity: 1;} 50% {opacity: 0.2;} }
         
-        #network-monitor { font-size: 0.65em; color: #ff3e3e; margin: 15px auto; max-width: 450px; height: 150px; overflow: hidden; border: 1px solid #330000; background: #0a0000; padding: 8px; line-height: 1.2; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; max-width: 450px; margin: 0 auto; font-size: 0.8em; color: #888; }
-        .warning { color: #ff3e3e; font-weight: bold; text-transform: uppercase; }
+        .box { border: 1px solid var(--neon); padding: 12px; background: #000; margin-bottom: 10px; text-align: left; font-size: 0.82em; position: relative; }
+        .box-title { color: #fff; font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #222; display: block; padding-bottom: 3px; text-transform: uppercase; }
+        
+        .scan-line { position: absolute; width: 100%; height: 2px; background: rgba(0, 255, 65, 0.3); top: 0; left: 0; animation: scan 3s linear infinite; pointer-events: none; }
+        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+
+        .btn { background: var(--neon); color: #000; padding: 18px; border: none; width: 100%; font-weight: 900; cursor: pointer; text-transform: uppercase; margin-top: 5px; transition: 0.2s; font-size: 1em; }
+        .panic-btn { background: var(--danger); color: #fff; margin-top: 10px; font-size: 1.2em; display: none; box-shadow: 0 0 30px var(--danger); border: 2px solid #fff; }
+        
+        #log { font-size: 0.65em; color: #008f11; height: 130px; overflow-y: hidden; border: 1px solid #222; padding: 10px; background: #000; margin-top: 15px; border-left: 3px solid var(--neon); text-align: left; }
+        .stat-line { display: flex; justify-content: space-between; font-size: 0.75em; margin-top: 10px; color: #888; border-top: 1px solid #222; padding-top: 10px; }
+        .val { color: #fff; }
     </style>
 </head>
 <body>
 
-    <h1 style="letter-spacing: 2px;">GHOST PROTOCOL v4.5</h1>
-    
-    <div class="box" id="device-info">
-        [ SYSTÉMOVÁ ANALÝZA ]<br>
-        IP: <span id="ip-display" style="color:#00d9ff">Scanning...</span><br>
-        Fingerprint: <span id="fp-status" style="color:#ff3e3e">ČITELNÝ</span>
+<div class="container">
+    <h1 id="t-title">GHOST PROTOCOL</h1>
+    <div class="warning-header" id="t-status">STATUS: CRITICALLY EXPOSED</div>
+
+    <div class="box">
+        <div class="scan-line"></div>
+        <span class="box-title" id="t-hw">HARDWARE FINGERPRINT</span>
+        CPU: <span class="val" id="cpu">...</span> | RAM: <span class="val" id="ram">...</span><br>
+        GPU: <span class="val" id="gpu">...</span><br>
+        <span id="t-batt-label">BATTERY</span>: <span class="val" id="batt">...</span><br>
+        <span id="t-res-label">DISPLAY</span>: <span class="val" id="res">...</span> (<span class="val" id="touch">...</span>)
     </div>
 
-    <button class="btn" id="start-btn" onclick="startShield()">AKTIVOVAT CLONU</button>
-    <button class="btn panic-btn" id="panic-btn" onclick="triggerPanic()">!!! PANIC MODE !!!</button>
-    
-    <div id="network-monitor">>>> ČEKÁM NA PŘÍKAZ...</div>
-
-    <div class="stat-grid">
-        <div>ZÁSAHY: <span id="hits" style="color:#fff">0</span></div>
-        <div>FALEŠNÉ KLIKY: <span id="clicks" style="color:#fff">0</span></div>
+    <div class="box">
+        <span class="box-title" id="t-id">DIGITAL IDENTITY</span>
+        IP: <span class="val" id="ip" style="color:#00d9ff">...</span><br>
+        PLATFORM: <span class="val" id="ua">...</span><br>
+        AD-BLOCK: <span class="val" id="adblock">...</span><br>
+        LANGUAGE: <span class="val" id="lang">...</span>
     </div>
 
-    <script>
-        let isPanic = false;
-        let hits = 0;
-        let clicks = 0;
-        const keywords = ["investing", "bioweapon-defense", "offshore-banking", "encryption-keys", "anonymous-browsing", "surveillance-bypass"];
+    <div class="box">
+        <span class="box-title" id="t-sensor">REAL-TIME SENSORS</span>
+        MOTION: <span class="val" id="motion">STATIONARY</span>
+    </div>
 
-        async function fetchIP() {
-            try {
-                const res = await fetch('https://api.ipify.org?format=json');
-                const data = await res.json();
-                document.getElementById('ip-display').innerText = data.ip;
-            } catch(e) { document.getElementById('ip-display').innerText = "VPN ACTIVE / HIDDEN"; }
+    <button class="btn" id="shield-btn" onclick="activateShield()">ACTIVATE SHIELD</button>
+    <button class="btn panic-btn" id="panic-btn" onclick="panicSequence()">!!! PANIC MODE !!!</button>
+
+    <div id="log">>>> SYSTEM READY...</div>
+
+    <div class="stat-line">
+        <div>NOISE: <span class="val" id="p-count">0</span> pkt</div>
+        <div>G-CLICKS: <span class="val" id="c-count">0</span></div>
+        <div>POISON: <span class="val" id="poison">0%</span></div>
+    </div>
+</div>
+
+<script>
+    // JAZYKOVÉ MUTACE
+    const langSet = {
+        cs: {
+            status: "STAV: KRITICKY ODHALEN",
+            hw: "OTISK HARDWARU",
+            batt: "BATERIE",
+            res: "DISPLEJ",
+            id: "DIGITÁLNÍ IDENTITA",
+            sensor: "SENZORY (REÁLNÝ ČAS)",
+            motion: "KLID",
+            btn: "AKTIVOVAT CLONU",
+            panic: "!!! PANIC MODE !!!",
+            ready: ">>> SYSTÉM PŘIPRAVEN...",
+            shield_start: ">>> SPUŠTĚNO CLONĚNÍ. GENERUJI ŠUM...",
+            panic_start: "!!! SPUŠTĚN PANIC MODE: DESTRUKCE PROFILU !!!",
+            noise_msg: "ŠUM: Zájem o topic odeslán.",
+            ghost_msg: "[GHOST] Falešná interakce na"
+        },
+        en: {
+            status: "STATUS: CRITICALLY EXPOSED",
+            hw: "HARDWARE FINGERPRINT",
+            batt: "BATTERY",
+            res: "DISPLAY",
+            id: "DIGITAL IDENTITY",
+            sensor: "REAL-TIME SENSORS",
+            motion: "STATIONARY",
+            btn: "ACTIVATE SHIELD",
+            panic: "!!! PANIC MODE !!!",
+            ready: ">>> SYSTEM READY...",
+            shield_start: ">>> SHIELD ACTIVE. GENERATING NOISE...",
+            panic_start: "!!! PANIC MODE: PROFILE DESTRUCTION !!!",
+            noise_msg: "NOISE: Interest in topic sent.",
+            ghost_msg: "[GHOST] Fake interaction at"
+        }
+    };
+
+    // Detekce jazyka
+    const userLang = navigator.language.startsWith('cs') ? 'cs' : 'en';
+    const t = langSet[userLang];
+
+    // Aplikace textů
+    document.getElementById('t-status').innerText = t.status;
+    document.getElementById('t-hw').innerText = t.hw;
+    document.getElementById('t-batt-label').innerText = t.batt;
+    document.getElementById('t-res-label').innerText = t.res;
+    document.getElementById('t-id').innerText = t.id;
+    document.getElementById('t-sensor').innerText = t.sensor;
+    document.getElementById('shield-btn').innerText = t.btn;
+    document.getElementById('panic-btn').innerText = t.panic;
+    document.getElementById('log').innerText = t.ready;
+
+    let packets = 0, clicks = 0, shieldActive = false;
+
+    async function runDeepScan() {
+        document.getElementById('cpu').innerText = navigator.hardwareConcurrency + " Cores";
+        document.getElementById('ram').innerText = (navigator.deviceMemory || "🔒") + " GB";
+        const gl = document.createElement('canvas').getContext('webgl');
+        const debug = gl.getExtension('WEBGL_debug_renderer_info');
+        document.getElementById('gpu').innerText = debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL).split(',')[0] : "🔒";
+
+        if(navigator.getBattery) {
+            const b = await navigator.getBattery();
+            const updateBatt = () => document.getElementById('batt').innerText = `${Math.round(b.level*100)}%`;
+            updateBatt();
         }
 
-        function startShield() {
-            document.getElementById('start-btn').style.display = "none";
-            document.getElementById('panic-btn').style.display = "block";
-            document.getElementById('fp-status').innerText = "ZAHALEN (ŠUM)";
-            document.getElementById('fp-status').style.color = "#00ff41";
-            
-            setInterval(() => injectNoise("DECOY"), 1200);
-        }
+        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => document.getElementById('ip').innerText = d.ip).catch(() => document.getElementById('ip').innerText = "VPN/TOR");
+        document.getElementById('res').innerText = `${window.screen.width}x${window.screen.height}`;
+        document.getElementById('ua').innerText = navigator.platform;
+        document.getElementById('lang').innerText = navigator.language;
 
-        function triggerPanic() {
-            isPanic = true;
-            const monitor = document.getElementById('network-monitor');
-            monitor.innerHTML = "<span class='warning'>!!! EXTRÉMNÍ SEKVENCE SPUŠTĚNA !!!</span><br>" + monitor.innerHTML;
-            
-            // Masivní smršť dat i falešných kliknutí
-            const panicLoop = setInterval(() => {
-                injectNoise("PANIC");
-                generateGhostClick();
-                if(!isPanic) clearInterval(panicLoop);
-            }, 60);
+        window.addEventListener('deviceorientation', (e) => {
+            if(e.beta) document.getElementById('motion').innerText = `X:${Math.round(e.beta)} Y:${Math.round(e.gamma)}`;
+        });
+    }
 
-            setTimeout(() => {
-                isPanic = false;
-                monitor.innerHTML = "<span style='color:#00ff41'>--- SEKVENCE DOKONČENA: DATA OTRÁVENA ---</span><br>" + monitor.innerHTML;
-            }, 6000); 
-        }
+    function activateShield() {
+        shieldActive = true;
+        document.getElementById('shield-btn').style.display = "none";
+        document.getElementById('panic-btn').style.display = "block";
+        document.getElementById('log').innerHTML = t.shield_start + "<br>" + document.getElementById('log').innerHTML;
+        setInterval(() => { if(shieldActive) injectNoise("SHIELD"); }, 1000);
+    }
 
-        function injectNoise(type) {
-            const kw = keywords[Math.floor(Math.random() * keywords.length)];
-            const monitor = document.getElementById('network-monitor');
-            
-            fetch(`https://source.unsplash.com/20x20/?${kw}&${Math.random()}`, { mode: 'no-cors' });
-            
-            hits++;
-            document.getElementById('hits').innerText = hits;
-            const time = new Date().toLocaleTimeString();
-            monitor.innerHTML = `[${time}] ${type}: Requesting metadata [${kw}]...<br>` + monitor.innerHTML;
-        }
-
-        function generateGhostClick() {
+    function panicSequence() {
+        const log = document.getElementById('log');
+        log.innerHTML = `<span style='color:red'>${t.panic_start}</span><br>` + log.innerHTML;
+        const loop = setInterval(() => {
+            injectNoise("PANIC");
+            clicks++;
+            document.getElementById('c-count').innerText = clicks;
             const x = Math.floor(Math.random() * window.innerWidth);
             const y = Math.floor(Math.random() * window.innerHeight);
-            
-            // Vytvoření falešné události pro trackery
-            const ghostEvent = new MouseEvent('click', {
-                'view': window,
-                'bubbles': true,
-                'clientX': x,
-                'clientY': y
-            });
-            document.dispatchEvent(ghostEvent);
+            document.dispatchEvent(new MouseEvent('click', {clientX: x, clientY: y}));
+            log.innerHTML = `<span style='color:orange'>${t.ghost_msg} [${x},${y}]</span><br>` + log.innerHTML;
+        }, 80);
+        setTimeout(() => { clearInterval(loop); }, 5000);
+    }
 
-            clicks++;
-            document.getElementById('clicks').innerText = clicks;
-            const monitor = document.getElementById('network-monitor');
-            monitor.innerHTML = `<span style="color:#ffaa00">[GHOST] Fake interaction at [X:${x} Y:${y}]</span><br>` + monitor.innerHTML;
+    function injectNoise(type) {
+        const topics = ["crypto", "travel", "politics", "health", "luxury"];
+        const topic = topics[Math.floor(Math.random()*topics.length)];
+        fetch(`https://source.unsplash.com/10x10/?${topic}&sig=${Math.random()}`, {mode:'no-cors'});
+        packets++;
+        document.getElementById('p-count').innerText = packets;
+        document.getElementById('poison').innerText = Math.min(100, Math.floor(packets / 1.5)) + "%";
+        if(type === "SHIELD") {
+            document.getElementById('log').innerHTML = `[${new Date().toLocaleTimeString()}] ${t.noise_msg} (${topic})<br>` + document.getElementById('log').innerHTML;
         }
+    }
 
-        fetchIP();
-    </script>
+    runDeepScan();
+</script>
 </body>
 </html>
